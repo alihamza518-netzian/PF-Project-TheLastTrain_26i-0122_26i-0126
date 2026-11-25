@@ -3,7 +3,6 @@
 #include "util.h"
 #include <iostream>
 #include <cstdlib>
-
 using namespace std;
 
 //Movement validation and resource adjustments
