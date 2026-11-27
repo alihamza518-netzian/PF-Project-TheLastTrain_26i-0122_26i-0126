@@ -22,6 +22,7 @@ bool checkEndConditions(int energy, int time,const bool objectives[NUM_OBJECTIVE
     return false;
 }
 
+// in this command we check the possible movement
 bool handleMoveCommand(int targetFloor, int targetRoom,
     int& currentFloor, int& currentRoom,
     int& energy, int& time,
@@ -29,13 +30,11 @@ bool handleMoveCommand(int targetFloor, int targetRoom,
     const char inventory[MAX_INVENTORY_CAPACITY], int inventoryCount,
     int& emergencyTripsLeft, bool lift2Operational)
 {
-    //check destination inside the building
-    if (targetFloor < 1||targetFloor > NUM_FLOORS||targetRoom < 1||targetRoom > ROOMS_PER_FLOOR)
+    if (targetFloor<1||targetFloor>NUM_FLOORS||targetRoom<1||targetRoom>ROOMS_PER_FLOOR)
     {
         cout<<"Invalid floor or room number."<<endl;
         return false;
     }
-
     // Stairs: F1-R1 to F2-R1, F2-R1 to F3-R1,F4-R1 to F5-R1
     bool usingStairs=
           (currentRoom==1&&targetRoom==1&&
@@ -47,7 +46,9 @@ bool handleMoveCommand(int targetFloor, int targetRoom,
           (currentFloor==5&&targetFloor==4)));
     if (usingStairs)
     {
-        applyResourceDelta(energy, time,COST_MOVE_ORDINARY_ENERGY,COST_MOVE_ORDINARY_TIME);
+        //logic in physics.cpp
+        applyResourceDelta(energy, time,COST_MOVE_ORDINARY_ENERGY,COST_MOVE_ORDINARY_TIME); //ORIDINARY ENERGY=-2
+                                                                                            //ORIDINARY TIME =-1
         currentFloor=targetFloor;
         currentRoom=targetRoom;
         cout<<"You used the stairs to Floor "<<currentFloor<<", Room "<<currentRoom<<".\n";
@@ -56,14 +57,10 @@ bool handleMoveCommand(int targetFloor, int targetRoom,
 
     // Lift 1: crossed routes between Floors 1 and 2
     bool usingLift1=
-        (currentFloor==1&&currentRoom==2&&
-         targetFloor==2&&targetRoom==3)||
-        (currentFloor==2&&currentRoom==3&&
-         targetFloor==1&&targetRoom==2)||
-        (currentFloor==2&&currentRoom==2&&
-         targetFloor==1&&targetRoom==3)||
-        (currentFloor==1&&currentRoom==3&&
-         targetFloor==2&&targetRoom==2);
+        (currentFloor==1&&currentRoom==2&&targetFloor==2&&targetRoom==3)||
+        (currentFloor==2&&currentRoom==3&&targetFloor==1&&targetRoom==2)||
+        (currentFloor==2&&currentRoom==2&&targetFloor==1&&targetRoom==3)||
+        (currentFloor==1&&currentRoom==3&&targetFloor==2&&targetRoom==2);
     if (usingLift1)
     {
         if (!canUseLift1(currentFloor, targetFloor))
@@ -71,7 +68,9 @@ bool handleMoveCommand(int targetFloor, int targetRoom,
             cout<<"Lift 1 cannot travel between those floors."<<endl;
             return false;
         }
-    applyResourceDelta(energy, time,COST_MOVE_LIFT_ENERGY,COST_MOVE_LIFT_TIME);
+        //logic in physics.cpp
+        applyResourceDelta(energy, time,COST_MOVE_LIFT_ENERGY,COST_MOVE_LIFT_TIME); //energy=-4
+                                                                                    //energy=-3
         currentFloor=targetFloor;
         currentRoom=targetRoom;
         cout<<"You used Lift 1 to Floor "<<currentFloor<<", Room "<<currentRoom<<endl;
@@ -95,22 +94,24 @@ bool handleMoveCommand(int targetFloor, int targetRoom,
         {
             emergencyTripsLeft--;
         }
-        applyResourceDelta(energy, time,  COST_MOVE_LIFT_ENERGY,COST_MOVE_LIFT_TIME);
-        currentFloor=targetFloor;
+        //logic in physics.cpp
+        applyResourceDelta(energy, time,  COST_MOVE_LIFT_ENERGY,COST_MOVE_LIFT_TIME); //energy -4
+        currentFloor=targetFloor;                                                     //time -3
         currentRoom=targetRoom;
 
-        cout<<"You used Lift 2 to Floor "<<currentFloor
-<<", Room "<<currentRoom<<endl;
+        cout<<"You used Lift 2 to Floor "<<currentFloor<<", Room "<<currentRoom<<endl;
         return true;
     }
     // Check horizontal connections between adjacent rooms
-    char connectionType=CONN_NONE;
+    char connectionType=CONN_NONE; // declared in state.h
+    //logic in physics.cpp 
     if (!isDirectlyConnected(currentFloor, currentRoom,targetFloor, targetRoom,horizontalConn, connectionType))
     {
         cout<<"Those rooms are not directly connected.\n";
         return false;
     }
     // Check whether the connection can be crossed
+    //logic in physics.cpp
     if (!canTraverse(targetFloor, targetRoom, connectionType,inventory, inventoryCount,emergencyTripsLeft, lift2Operational))
     {
         cout<<"You cannot pass through that connection.\n";
@@ -119,16 +120,16 @@ bool handleMoveCommand(int targetFloor, int targetRoom,
     // Apply the movement cost
     if (connectionType==CONN_WINDOW)
     {
-        applyResourceDelta(energy, time, COST_MOVE_WINDOW_ENERGY,COST_MOVE_WINDOW_TIME);
-    }
+        //logic is in physics.cpp
+        applyResourceDelta(energy, time, COST_MOVE_WINDOW_ENERGY,COST_MOVE_WINDOW_TIME); // energy=-3
+    }                                                                                    //time =-2
     else
     {
         applyResourceDelta(energy, time,COST_MOVE_ORDINARY_ENERGY,COST_MOVE_ORDINARY_TIME);
     }
     currentFloor=targetFloor;
     currentRoom=targetRoom;
-    cout<<"You moved to Floor "<<currentFloor
-<<", Room "<<currentRoom<<endl;
+    cout<<"You moved to Floor "<<currentFloor<<", Room "<<currentRoom<<endl;
     return true;
 }
 
@@ -139,22 +140,23 @@ bool handleInspectCommand(
     int entityCount,
     bool objectives[NUM_OBJECTIVES], int& score)
 {
-    if (currentFloor < 1||currentFloor > NUM_FLOORS||currentRoom < 1||currentRoom > ROOMS_PER_FLOOR)
+    if (currentFloor<1||currentFloor>NUM_FLOORS||currentRoom<1||currentRoom>ROOMS_PER_FLOOR)
     {
         cout<<"Invalid current floor or room.\n";
         return false;
     }
-    if (entityCount < 0||entityCount > MAX_ENTITIES_PER_ROOM)
+    if (entityCount<0||entityCount>MAX_ENTITIES_PER_ROOM)
     {
         cout<<"Invalid entity count for this room.\n";
         return false;
     }
+    // logic in physics.cpp
     applyResourceDelta(energy, time,
-                       COST_INSPECT_ENERGY,
-                       COST_INSPECT_TIME);
-
+                       COST_INSPECT_ENERGY, //-1
+                       COST_INSPECT_TIME);  //-1
+     //logic is in viewer_iface
     renderRoomDetails(currentFloor, currentRoom,roomEntities, entityCount);
-    // Inspection has no score or objective change in the current rules.
+    
     (void)objectives;
     (void)score;
     return true;
@@ -168,18 +170,17 @@ bool handleCollectCommand(
     char inventory[MAX_INVENTORY_CAPACITY], int& inventoryCount,
     bool objectives[NUM_OBJECTIVES])
 {
-        if (itemSymbol==ENT_CABINET_TRAIN_KEY&&
-        !objectives[OBJ_CABINET_UNLOCKED])
+    if (itemSymbol==ENT_CABINET_TRAIN_KEY && !objectives[OBJ_CABINET_UNLOCKED])
     {
         cout<<"Unlock the cabinet before collecting the Train Key.\n";
         return false;
     }
-    if (currentFloor < 1||currentFloor > NUM_FLOORS||currentRoom < 1||currentRoom > ROOMS_PER_FLOOR)
+    if (currentFloor<1||currentFloor>NUM_FLOORS||currentRoom<1||currentRoom>ROOMS_PER_FLOOR)
     {
         cout<<"Invalid current floor or room.\n";
         return false;
     }
-    if (entityCount < 0||entityCount > MAX_ENTITIES_PER_ROOM||inventoryCount < 0||inventoryCount > MAX_INVENTORY_CAPACITY)
+    if (entityCount<0 || entityCount>MAX_ENTITIES_PER_ROOM || inventoryCount<0 || inventoryCount>MAX_INVENTORY_CAPACITY)
     {
         cout<<"Invalid room or inventory data.\n";
         return false;
@@ -209,7 +210,7 @@ bool handleCollectCommand(
     }
     // Find requested item in room.
     int itemIndex=-1;
-    for (int i=0; i < entityCount; i++)
+    for (int i=0; i<entityCount; i++)
     {
         if (roomEntities[currentFloor - 1][currentRoom - 1][i]==itemSymbol)
         {
@@ -235,49 +236,49 @@ bool handleCollectCommand(
     inventory[inventoryCount]=itemSymbol;
     inventoryCount++;
     // Remove  item from  room by  entries left.
-    for (int i=itemIndex; i < entityCount - 1; i++)
+    for (int i=itemIndex; i<entityCount-1; i++)
     {
-        roomEntities[currentFloor - 1][currentRoom - 1][i]=roomEntities[currentFloor - 1][currentRoom - 1][i + 1];
+        roomEntities[currentFloor-1][currentRoom-1][i]=roomEntities[currentFloor-1][currentRoom-1][i+1];
     }
     entityCount--;
-    roomEntities[currentFloor - 1][currentRoom - 1][entityCount]=ENT_NONE;
+    roomEntities[currentFloor-1][currentRoom-1][entityCount]=ENT_NONE;
     // Apply pickup cost.
     applyResourceDelta(energy, time,
-                       COST_ITEM_PICKUP_ENERGY,
-                       COST_ITEM_PICKUP_TIME);
+                       COST_ITEM_PICKUP_ENERGY, //-1
+                       COST_ITEM_PICKUP_TIME);  //-1
 
     // Update score for relevant items.
     switch (itemSymbol)
     {
         case ENT_MASTER_KEY:
             objectives[OBJ_MASTER_KEY]=true;
-            score +=SCORE_KEY_COLLECT;
+            score +=SCORE_KEY_COLLECT; //10
             break;
         case ENT_CLUE_4:
             objectives[OBJ_CLUE_4]=true;
-            score +=SCORE_CLUE_FOUND;
-            break;
+            score +=SCORE_CLUE_FOUND;  //10
+            break; 
         case ENT_CLUE_2:
             objectives[OBJ_CLUE_2]=true;
-            score +=SCORE_CLUE_FOUND;
+            score +=SCORE_CLUE_FOUND; //10
             break;
         case ENT_CLUE_7:
             objectives[OBJ_CLUE_7]=true;
-            score +=SCORE_CLUE_FOUND;
+            score +=SCORE_CLUE_FOUND; //10
             break;
         case ENT_FUSE:
             objectives[OBJ_FUSE_COLLECTED]=true;
             break;
         case ENT_LIFT_PASS:
             objectives[OBJ_LIFT_PASS]=true;
-            score +=SCORE_LIFT_PASS;
+            score +=SCORE_LIFT_PASS; //20
             break;
         case ENT_CABINET_TRAIN_KEY:
             objectives[OBJ_TRAIN_KEY]=true;
-            score +=SCORE_TRAIN_KEY;
+            score +=SCORE_TRAIN_KEY; //10
             break;
     }
-    cout<<"Item collected: "<<getEntityName(itemSymbol)<<endl;
+    cout<<"Item collected: "<<getEntityName(itemSymbol)<<endl; // declared in level.h
     return true;
 }
 
@@ -287,40 +288,38 @@ bool handleUseCommand(
     char inventory[MAX_INVENTORY_CAPACITY], int& inventoryCount,
     bool objectives[NUM_OBJECTIVES])
 {
-    if (currentFloor < 1||currentFloor > NUM_FLOORS||currentRoom < 1||currentRoom > ROOMS_PER_FLOOR)
+    if (currentFloor<1||currentFloor>NUM_FLOORS||currentRoom<1||currentRoom>ROOMS_PER_FLOOR)
     {
         cout<<"Invalid current floor or room.\n";
         return false;
     }
-    if (inventoryCount < 0||inventoryCount > MAX_INVENTORY_CAPACITY)
+    if (inventoryCount<0||inventoryCount>MAX_INVENTORY_CAPACITY)
     {
         cout<<"Invalid inventory data.\n";
         return false;
     }
-    if (!hasItem(inventory, inventoryCount, itemSymbol))
+    if (!hasItem(inventory, inventoryCount, itemSymbol))  //logic in physics.cpp
     {
         cout<<"You do not have that item.\n";
         return false;
     }
-    if (itemSymbol==ENT_ENERGY_PACK||
-        itemSymbol==ENT_EMERGENCY_TOOLKIT||
-        itemSymbol==ENT_OBSERVATION_TOKEN)
+    if (itemSymbol==ENT_ENERGY_PACK||itemSymbol==ENT_EMERGENCY_TOOLKIT||itemSymbol==ENT_OBSERVATION_TOKEN)
     {
         int energyBonus=0;
         if (itemSymbol==ENT_ENERGY_PACK)
-            energyBonus=BONUS_ENERGY_PACK;
+            energyBonus=BONUS_ENERGY_PACK; //25
         else if (itemSymbol==ENT_EMERGENCY_TOOLKIT)
-            energyBonus=BONUS_EMERGENCY_TOOLKIT;
+            energyBonus=BONUS_EMERGENCY_TOOLKIT; //15
         else
-            energyBonus=BONUS_OBSERVATION_TOKEN;
-        if (!removeItem(inventory, inventoryCount, itemSymbol))
+            energyBonus=BONUS_OBSERVATION_TOKEN; //15
+        if (!removeItem(inventory, inventoryCount, itemSymbol))  //in physics.cpp
         {
             cout<<"Could not remove the item from inventory.\n";
             return false;
         }
         applyResourceDelta(
             energy, time,
-            COST_ITEM_USE_ENERGY + energyBonus,
+            COST_ITEM_USE_ENERGY + energyBonus,   //-1 both
             COST_ITEM_USE_TIME);
         cout<<"You used the item and restored energy.\n";
         return true;
@@ -333,8 +332,7 @@ bool handleUseCommand(
             cout<<"Use the fuse at the control panel in F3-R4.\n";
             return false;
         }
-        if (!installFuseControlPanel(
-                inventory, inventoryCount, objectives, score))
+        if (!installFuseControlPanel(inventory, inventoryCount, objectives, score)) //declared in switches.cpp
         {
             cout<<"The fuse could not be installed.\n";
             return false;
@@ -342,7 +340,7 @@ bool handleUseCommand(
         objectives[OBJ_LIFT2_ACTIVE]=true;
         applyResourceDelta(energy, time,
                            COST_ITEM_USE_ENERGY,
-                           COST_ITEM_USE_TIME);
+                           COST_ITEM_USE_TIME); //-1 both
         cout<<"The fuse was installed.\n";
         return true;
     }
@@ -359,7 +357,7 @@ bool handleUseCommand(
             cout<<"The passenger has already been rescued.\n";
             return false;
         }
-        if (!removeItem(inventory, inventoryCount, itemSymbol))
+        if (!removeItem(inventory, inventoryCount, itemSymbol))  //in physivcs.cpp
         {
             cout<<"Could not remove the medical kit from inventory.\n";
             return false;
@@ -367,7 +365,7 @@ bool handleUseCommand(
         objectives[OBJ_PASSENGER_RESCUED]=true;
         score +=SCORE_RESCUE_PASSENGER;
         applyResourceDelta(energy, time,
-                           COST_ITEM_USE_ENERGY,
+                           COST_ITEM_USE_ENERGY, //both =-1
                            COST_ITEM_USE_TIME);
         cout<<"The passenger has been rescued.\n";
         return true;
@@ -391,7 +389,7 @@ bool handleUseCommand(
             return false;
         }
         objectives[OBJ_CAT_SECURED]=true;
-        score +=SCORE_SECURE_CAT;
+        score +=SCORE_SECURE_CAT;      //100
         applyResourceDelta(energy, time,
                            COST_ITEM_USE_ENERGY,
                            COST_ITEM_USE_TIME);
@@ -492,23 +490,26 @@ void runSimulation(
     int entityCounts[NUM_FLOORS][ROOMS_PER_FLOOR])
 {
     bool quit=false;
+    renderAsciiBuilding(playerFloor, playerRoom);
+
     while (!quit&&!checkEndConditions(energy, time, objectives))
     {
         renderDashboard(playerFloor, playerRoom, energy, time, score, inventory, inventoryCount, emergencyTripsLeft);
-        renderAsciiBuilding(playerFloor, playerRoom);
         cout<<endl;
         cout<<"Choose an action:\n"
-<<"1. Move\n"
-<<"2. Inspect room\n"
-<<"3. Collect item\n"
-<<"4. Use item\n"
-<<"5. Unlock cabinet\n"
-<<"6. Show objectives\n"
-<<"7. Save game\n"
-<<"8. Load game\n"
-<<"9. Prepare train\n"
-<<"0. Quit\n"
-<<"Choice: ";
+            <<"1. Move\n"
+            <<"2. Inspect room\n"
+            <<"3. Collect item\n"
+            <<"4. Use item\n"
+            <<"5. Unlock cabinet\n"
+            <<"6. Show objectives\n"
+            <<"7. Save game\n"
+            <<"8. Load game\n"
+            <<"9. Prepare train\n"
+            <<"0. Quit\n"
+            <<"lets go\n"
+            <<"you are at F"<<playerFloor<<"-R"<<playerRoom<<">>\n"
+            <<"choice ";
         int choice;
         if (!(cin>>choice))
         {
@@ -619,6 +620,7 @@ void runSimulation(
                         roomEntities,entityCounts))
                 {
                     cout<<"Game saved.\n";
+                    quit=true;
                 }
                 else
                 {
@@ -636,6 +638,7 @@ void runSimulation(
                         roomEntities,entityCounts))
                 {
                     cout<<"Game loaded.\n";
+                    renderAsciiBuilding(playerFloor, playerRoom);
                 }
                 else
                 {
@@ -643,7 +646,11 @@ void runSimulation(
                 }
                 break;
             case 9:
-                prepareTrain(playerFloor,playerRoom,objectives,score);
+                if (prepareTrain(playerFloor,playerRoom,objectives,score))
+                {
+                    renderDashboard(playerFloor, playerRoom, energy, time, score,
+                                    inventory, inventoryCount, emergencyTripsLeft);
+                }
                 break;
             case 0:
                 quit=true;

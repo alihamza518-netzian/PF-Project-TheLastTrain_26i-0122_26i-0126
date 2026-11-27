@@ -3,6 +3,7 @@
 #include "logger.h"
 #include "viewer_iface.h"
 #include <iostream>
+#include<limits>
 
 int main() {
     // Player State Primitives
@@ -45,6 +46,12 @@ int main() {
     runSimulation(playerFloor, playerRoom, energy, time, score,
                   inventory, inventoryCount, objectives, emergencyTripsLeft,
                   horizontalConn, roomEntities, entityCounts);
+    
+    std::cout << "\nPress Enter to close...";
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cin.get();
+
+    
 
     return 0;
 }

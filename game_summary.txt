@@ -1,0 +1,24 @@
+THE LAST TRAIN - GAME SUMMARY
+==============================
+Result: Victory
+Score: 500
+Energy remaining: 12
+Time remaining: 6
+
+Objectives:
+Objective 1: Complete
+Objective 2: Complete
+Objective 3: Complete
+Objective 4: Complete
+Objective 5: Complete
+Objective 6: Complete
+Objective 7: Incomplete
+Objective 8: Complete
+Objective 9: Incomplete
+Objective 10: Complete
+Objective 11: Complete
+Objective 12: Incomplete
+Objective 13: Complete
+Objective 14: Complete
+Objective 15: Complete
+Objective 16: Incomplete

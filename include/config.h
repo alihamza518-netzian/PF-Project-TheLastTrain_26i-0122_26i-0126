@@ -8,7 +8,7 @@ const int TOTAL_ROOMS = 20;
 
 // --- Resource Pools ---
 const int MAX_ENERGY = 100;
-const int MAX_TIME = 50;
+const int MAX_TIME = 100;  //maam mubarra instructions to change time from 50 to 100./
 const int INITIAL_ENERGY = 100;
 const int INITIAL_TIME = 50;
 const int INITIAL_SCORE = 0;
@@ -45,7 +45,7 @@ const int BONUS_OBSERVATION_TOKEN   = 15;
 
 // --- Score Awards ---
 const int SCORE_KEY_COLLECT         = 10;
-const int SCORE_CLUE_FOUND          = 10;
+const int SCORE_CLUE_FOUND          = 10; //10 +10 +10 =30
 const int SCORE_CABINET_UNLOCK      = 30;
 const int SCORE_TRAIN_KEY           = 10;
 const int SCORE_RESCUE_PASSENGER    = 100;

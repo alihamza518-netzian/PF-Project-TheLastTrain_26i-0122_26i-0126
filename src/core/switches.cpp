@@ -6,14 +6,12 @@ bool unlockFloor3Door(
     const char inventory[MAX_INVENTORY_CAPACITY],
     int inventoryCount)
 {
-    if (inventory == nullptr ||
-        inventoryCount < 0 ||
-        inventoryCount > MAX_INVENTORY_CAPACITY)
+    if (inventory == nullptr||inventoryCount<0||inventoryCount>MAX_INVENTORY_CAPACITY)
     {
         return false;
     }
 
-    for (int i = 0; i < inventoryCount; i++)
+    for (int i=0; i<inventoryCount; i++)
     {
         if (inventory[i] == ENT_MASTER_KEY)
         {
@@ -49,9 +47,7 @@ bool installFuseControlPanel(
     bool objectives[NUM_OBJECTIVES],
     int& score)
 {
-    if (inventory == nullptr || objectives == nullptr ||
-        inventoryCount < 0 ||
-        inventoryCount > MAX_INVENTORY_CAPACITY)
+    if (inventory==nullptr||objectives==nullptr||inventoryCount<0 ||inventoryCount>MAX_INVENTORY_CAPACITY)
     {
         return false;
     }
@@ -62,8 +58,7 @@ bool installFuseControlPanel(
     }
 
     int fuseIndex = -1;
-
-    for (int i = 0; i < inventoryCount; i++)
+    for (int i=0; i<inventoryCount; i++)
     {
         if (inventory[i] == ENT_FUSE)
         {
@@ -72,12 +67,12 @@ bool installFuseControlPanel(
         }
     }
 
-    if (fuseIndex == -1)
+    if (fuseIndex==-1)
     {
         return false;
     }
 
-    for (int i = fuseIndex; i < inventoryCount - 1; i++)
+    for (int i=fuseIndex; i<inventoryCount-1; i++)
     {
         inventory[i] = inventory[i + 1];
     }
@@ -87,7 +82,7 @@ bool installFuseControlPanel(
 
     objectives[OBJ_FUSE_COLLECTED] = false;
     objectives[OBJ_FUSE_INSTALLED] = true;
-    score += SCORE_INSTALL_FUSE;
+    score += SCORE_INSTALL_FUSE;  //20
 
     return true;
 }

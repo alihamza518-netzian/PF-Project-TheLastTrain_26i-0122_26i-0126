@@ -1,6 +1,8 @@
 #include "viewer_iface.h"
 #include "level.h"
 #include <iostream>
+#include <fstream>
+#include <string>
 
 using namespace std;
 
@@ -14,8 +16,7 @@ void renderDashboard(
     cout<<"\n+--------------------------------------+\n";
     cout<<"|           THE LAST TRAIN             |\n";
     cout<<"+--------------------------------------+\n";
-    cout<<"| Location       : Floor "<<playerFloor
-        <<", Room "<<playerRoom<<'\n';
+    cout<<"| Location       : Floor "<<playerFloor<<", Room "<<playerRoom<<'\n';
     cout<<"| Energy         : "<<energy<<" / "<<MAX_ENERGY<<'\n';
     cout<<"| Time           : "<<time<<" / "<<MAX_TIME<<'\n';
     cout<<"| Score          : "<<score<<'\n';
@@ -34,7 +35,6 @@ void renderDashboard(
             cout<<"|   "<<getEntityName(inventory[i])<<'\n';
         }
     }
-
     cout<<"+======================================+\n";
 }
 
@@ -55,40 +55,32 @@ void renderRoomDetails(
     {
         for (int i=0;i<entityCount;i++)
         {
-            cout<<"|   - "
-                <<getEntityName(roomEntities[floor-1][room-1][i])
-                <<'\n';
+            cout<<"|   - "<<getEntityName(roomEntities[floor-1][room-1][i])<<'\n';
         }
     }
-
     cout<<"+--------------------------------------+\n";
 }
 
 void renderAsciiBuilding(int playerFloor,int playerRoom)
 {
-    cout<<"\nBUILDING MAP  (P = your location)\n";
+    ifstream buildingFile("data/building.txt");
 
-    for (int floor=NUM_FLOORS;floor>=1;floor--)
+    if (!buildingFile)
     {
-        cout<<"Floor "<<floor<<"  ";
-
-        for (int room=1;room<=ROOMS_PER_FLOOR;room++)
-        {
-            if(floor==playerFloor&&room==playerRoom)
-            {
-                cout<<"[ P ]";
-            }
-            else
-            {
-                cout<<"[ R"<<room<<" ]";
-            }
-        }
-
-        cout<<'\n';
+        cout<<"Could not open data/building.txt.\n";
+        return;
     }
 
-    cout<<"             Rooms:  1     2     3     4\n";
+    string mapLine;
+
+    while (getline(buildingFile,mapLine))
+    {
+        cout<<mapLine<<'\n';
+    }
+
+    cout<<"Player location: F"<<playerFloor<<"-R"<<playerRoom<<'\n';
 }
+
 
 void renderObjectivesChecklist(const bool objectives[NUM_OBJECTIVES])
 {

@@ -5,7 +5,7 @@
 #include <cstdlib>
 using namespace std;
 
-//Movement validation and resource adjustments
+//Movement checking
 bool isDirectlyConnected(
     int fromF,int fromR,int toF,int toR,
     const char horizontalConn[NUM_FLOORS][ROOMS_PER_FLOOR-1],
@@ -13,29 +13,30 @@ bool isDirectlyConnected(
 {
     outConnType=CONN_NONE;
 
-    if ( fromF<1 || fromF>NUM_FLOORS || toF<1 || toF>NUM_FLOORS ||
-         fromR<1 || fromR>ROOMS_PER_FLOOR || toR<1 || toR>ROOMS_PER_FLOOR ) {
+    if ( fromF<1||fromF>NUM_FLOORS||toF<1||toF>NUM_FLOORS||fromR<1||fromR>ROOMS_PER_FLOOR||toR<1||toR>ROOMS_PER_FLOOR ) 
+    {
         return false;
     }
 
-    if ( horizontalConn==nullptr ) {
+    if (horizontalConn==nullptr) 
+    {
+        return false;
+    }
+    //horizontal connections
+    if (fromF!=toF|| abs(fromR-toR)!=1)
+    {
         return false;
     }
 
-    //Horizontal connections
-    if ( fromF!=toF || std::abs(fromR-toR)!=1 ) {
-        return false;
-    }
-
-    //Finding the connection between the two neighboring rooms
-    outConnType=horizontalConn[fromF-1][(fromR<toR?fromR:toR)-1];
+    //finding connections between rooms
+    outConnType=horizontalConn[fromF-1][(fromR<toR?fromR:toR)-1]; //we have only 3 connections 0 1 2 so we slect smaller coz if we select larger than at 4 it is 4-1=3 that is not included...
 
     //Reject missing connections and solid walls
-    if ( outConnType==CONN_NONE || outConnType==CONN_SOLID_WALL ) {
+    if ( outConnType==CONN_NONE||outConnType==CONN_SOLID_WALL ) 
+    {
         outConnType=CONN_NONE;
         return false;
     }
-
     return true;
 }
 
@@ -46,17 +47,20 @@ void applyResourceDelta(
     energy+=deltaEnergy;
     time+=deltaTime;
 
-    if ( energy<0 ) {
+    if (energy<0) 
+    {
         energy=0;
     }
-    else if ( energy>MAX_ENERGY ) {
+    else if (energy>MAX_ENERGY)
+    {
         energy=MAX_ENERGY;
     }
 
-    if ( time<0 ) {
+    if (time<0) 
+    {
         time=0;
     }
-    else if ( time>MAX_TIME ) {
+    else if (time>MAX_TIME) {
         time=MAX_TIME;
     }
 }
@@ -67,22 +71,22 @@ bool canTraverse(
     int emergencyTripsLeft,bool lift2Operational)
 {
     //Checking that the destination is inside the building
-    if ( targetFloor<1 || targetFloor>NUM_FLOORS ||
-         targetRoom<1 || targetRoom>ROOMS_PER_FLOOR ) {
+    if ( targetFloor<1||targetFloor>NUM_FLOORS||targetRoom<1||targetRoom>ROOMS_PER_FLOOR )
+    {
         return false;
     }
 
-    if ( inventory==nullptr ||
-         inventoryCount<0 ||
-         inventoryCount>MAX_INVENTORY_CAPACITY ) {
+    if ( inventory==nullptr||inventoryCount<0||inventoryCount>MAX_INVENTORY_CAPACITY )
+    {
         return false;
     }
 
     //Stairs and lifts are checked separately in handleMoveCommand()
     (void)emergencyTripsLeft;
-    (void)lift2Operational;
-
-    switch ( connType ) {
+    (void)lift2Operational;    // there is no use of these both in this func so we write like this.
+// if we cant use this here , program works but compiler warns with (-Wall -Wextra)
+    switch (connType)
+     {
         case CONN_DOOR:
         case CONN_WINDOW:
             return true;
@@ -111,13 +115,13 @@ bool hasItem(
     int inventoryCount,
     char itemSymbol)
 {
-    if ( inventory==nullptr ||
-         inventoryCount<0 ||
-         inventoryCount>MAX_INVENTORY_CAPACITY ) {
+    if ( inventory==nullptr||inventoryCount<0 ||inventoryCount>MAX_INVENTORY_CAPACITY ) 
+    {
         return false;
     }
 
-    for ( int i=0; i<inventoryCount; i++ ) {
+    for (int i=0; i<inventoryCount; i++ ) 
+    {
         if ( inventory[i]==itemSymbol ) {
             return true;
         }
@@ -149,17 +153,16 @@ bool removeItem(
     int& inventoryCount,
     char itemSymbol)
 {
-    if ( inventory==nullptr ||
-         inventoryCount<0 ||
-         inventoryCount>MAX_INVENTORY_CAPACITY ||
-         itemSymbol==ENT_NONE ) {
+    if ( inventory==nullptr ||inventoryCount<0 ||inventoryCount>MAX_INVENTORY_CAPACITY ||itemSymbol==ENT_NONE ) {
         return false;
     }
 
     int itemIndex=-1;
 
-    for ( int i=0; i<inventoryCount; i++ ) {
-        if ( inventory[i]==itemSymbol ) {
+    for ( int i=0; i<inventoryCount; i++ ) 
+    {
+        if ( inventory[i]==itemSymbol ) 
+        {
             itemIndex=i;
             break;
         }
@@ -169,7 +172,8 @@ bool removeItem(
         return false;
     }
 
-    for ( int i=itemIndex; i<inventoryCount-1; i++ ) {
+    for ( int i=itemIndex; i<inventoryCount-1; i++ ) 
+    {
         inventory[i]=inventory[i+1];
     }
 
